@@ -1,41 +1,92 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
+import { useState, useReducer } from 'react';
 
 function App() {
-  const [display, setDisplay] = useState("")
-  const [curValue, setCurValue] = useState(0)
-  const [curOp, setCurOp] = useState("+")
-  
-  const calculate = () =>{
-    if(curOp === "+"){
-      setCurValue(curValue + parseInt(display))
+
+  const initialState = {
+    display: "",
+    curValue: 0,
+    curOp: "+"
+  }
+  const [state, dispatch] = useReducer(opsReducer, initialState)
+
+  function calculate(state){
+    if(state.curOp === "+"){
+      return state.curValue + parseInt(state.display)
     }
-    if(curOp === "-"){
-      setCurValue(curValue - parseInt(display))
+    if(state.curOp === "-"){
+      return state.curValue - parseInt(state.display)
     }
-    if(curOp === "x"){
-      setCurValue(curValue*parseInt(display))
+    if(state.curOp === "x"){
+      return state.curValue * parseInt(state.display)
     }
-    if(curOp === "/"){
-      setCurValue(curValue/parseInt(display))
-    }
-    
+    if(state.curOp === "/"){
+      return state.curValue / parseInt(state.display)
+    }    
   }
 
+  function opsReducer(state, action){
+    switch (action.type) {
+      case 'number': {
+        return {
+          ...state,
+          display: state.display + action.value
+        }
+      }
 
+      case '+': {
+        return {
+          curValue: calculate(state),
+          display: "",
+          curOp: "+"
+        }
+      }
+      case '-': {
+        return {
+          curValue: calculate(state),
+          display: "",
+          curOp: "-"
+        }
+      }
+      case 'x': {
+        return {
+          curValue: calculate(state),
+          display: "",
+          curOp: "x"
+        }
+      }
+      case '/': {
+        return {
+          curValue: calculate(state),
+          display: "",
+          curOp: "/"
+        }
+      }
+      default: {
+        throw Error('Unknown action: ' + action.type)
+      }
+    }
+  }
 
+ 
 
   return (
     <div className="App">
-      <div>Result: {curValue}</div>
-      <div>Input: {display}</div>
+      <div>Result: {state.curValue}</div>
+      <div>Input: {state.display}</div>
       <div>
         <button onClick={()=>{
-          setDisplay(display+"1")
+          dispatch({
+            type: "number",
+            value: 1
+          })
         }}>1</button>
         <button onClick={()=>{
-          setDisplay(display+"2")
+          dispatch({
+            type: "number",
+            value: 2
+          })
         }}>2</button>
         <button>3</button>
       </div>
@@ -52,28 +103,30 @@ function App() {
       <div>
         <button>0</button>
         <button onClick={()=>{
-          calculate()
-          setCurOp("+")
-          setDisplay("")
+          dispatch({
+            type: "+"
+          })
         }}>+</button>
 
         <button onClick={()=>{
-          calculate()
-          setCurOp("-")
-          setDisplay("")
+          dispatch({
+            type: "-"
+          })
         }}>-</button>
       </div>
       <div>
         <button onClick={()=>{
-          calculate()
-          setCurOp("x")
-          setDisplay("")}}>x</button>
-        <button>/</button>
+          dispatch({
+            type: "x"
+          })}}>x</button>
         <button onClick={()=>{
-          calculate()
-          // = means calculate, then put the result as current input for future operator
-          
-        }}>=</button>
+          dispatch({
+            type: "*"
+          })}}>/</button>
+        <button onClick={()=>{
+          dispatch({
+            type: "="
+          })}}>=</button>
       </div>
 
     </div>
